@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviewise - Welcome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --page-bg: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+            --surface: white;
+            --text: #1f2a44;
+            --muted: #666d7d;
+            --accent: #0066ff;
+            --accent-soft: rgba(0, 102, 255, 0.12);
+            --card-shadow: 0 20px 60px rgba(0, 51, 102, 0.12);
+            --btn-bg: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            --btn-text: white;
+            --btn-secondary-bg: linear-gradient(135deg, #0080ff 0%, #0066cc 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Background decorative elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -20%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 128, 255, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 8s ease-in-out infinite reverse;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(30px); }
+        }
+
+        .container {
+            background: var(--surface);
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            margin-bottom: 24px;
+            animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        .logo img {
+            max-width: 80px;
+            height: auto;
+            filter: drop-shadow(0 4px 12px rgba(0, 102, 255, 0.2));
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .container h1 {
+            color: #003366;
+            margin-bottom: 12px;
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #003366 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInDown 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container p {
+            color: #666d7d;
+            margin-bottom: 50px;
+            font-size: 16px;
+            line-height: 1.6;
+            animation: fadeInDown 0.8s ease-out 0.4s both;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .btn {
+            padding: 16px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn > span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-login {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            box-shadow: 0 8px 24px rgba(0, 102, 255, 0.3);
+            animation-delay: 0.5s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 102, 255, 0.45);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #0080ff 0%, #0066cc 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 128, 255, 0.3);
+            animation-delay: 0.6s;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 128, 255, 0.45);
+        }
+
+        .admin-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #7a42ff 0%, #5b3aff 100%);
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 24px rgba(105, 77, 255, 0.35);
+            text-decoration: none;
+            z-index: 100;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .admin-icon:hover {
+            transform: scale(1.1) translateZ(0);
+            box-shadow: 0 12px 30px rgba(105, 77, 255, 0.45);
+        }
+
+        .admin-icon:active {
+            transform: scale(0.95) translateZ(0);
+        }
+
+    </style>
+    <link rel="stylesheet" href="ui-theme.css">
+</head>
+<body class="game-theme">
+    <a href="admin-login.html" class="admin-icon" title="Admin Login" id="adminIcon">👤</a>
+
+    <div class="container">
+        <div class="logo">
+            <img src="logo.png" alt="Reviewise Logo">
+        </div>
+        <h1>Reviewise</h1>
+        <p>Choose an option to continue</p>
+        
+        <div class="options">
+            <a href="login.html" class="btn btn-login"><span>Login</span></a>
+            <a href="register.html" class="btn btn-register"><span>Register</span></a>
+        </div>
+    </div>
+
+    <script>
+        const adminIcon = document.getElementById('adminIcon');
+        if (adminIcon) {
+            adminIcon.addEventListener('click', () => {
+                sessionStorage.setItem('allowAdminLogin', 'true');
+            });
+        }
+    </script>
+</body>
+</html>

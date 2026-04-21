@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Reviewise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --page-bg: #f5f7fa;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-strong: #e2e8f0;
+            --text: #1f2937;
+            --muted: #475569;
+            --accent: #003366;
+            --accent-strong: #0052cc;
+            --border: #e9eef5;
+            --card-shadow: 0 4px 16px rgba(0, 51, 102, 0.08);
+            --btn-bg: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            --btn-text: white;
+            --sidebar-bg: linear-gradient(135deg, #003366 0%, #0052cc 100%);
+            --topbar-bg: #ffffff;
+            --topbar-shadow: rgba(0, 51, 102, 0.08);
+            --sidebar-text: white;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            position: relative;
+        }
+
+        /* Sidebar Drawer */
+        aside {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(135deg, #003366 0%, #0052cc 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 12px rgba(0, 51, 102, 0.15);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        aside.drawer-open {
+            transform: translateX(0);
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 998;
+            display: none;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            display: block;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        aside {
+            background: var(--sidebar-bg);
+        }
+
+        .top-bar {
+            background: var(--topbar-bg);
+            box-shadow: 0 2px 8px var(--topbar-shadow);
+        }
+
+        .user-info {
+            background: var(--surface);
+        }
+
+        .item-card,
+        .pdf-modal-content,
+        .pdf-sidebar,
+        .pdf-viewer,
+        .pdf-iframe {
+            background: var(--surface);
+        }
+
+        .item-image {
+            background: var(--surface-soft);
+        }
+
+        .item-title,
+        .content-header h2,
+        .empty-state-title,
+        .pdf-sidebar h3,
+        .leaderboard-table th {
+            color: var(--accent);
+        }
+
+        .item-description,
+        .content-header p,
+        .empty-state-text,
+        .pdf-placeholder,
+        .leaderboard-table td,
+        .menu-item {
+            color: var(--text);
+        }
+
+        .handout-btn,
+        .quiz-btn,
+        .add-item-btn {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+            filter: brightness(1.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            animation: fadeInLeft 0.6s ease-out both;
+        }
+
+        .menu-item:nth-child(1) { animation-delay: 0.3s; }
+        .menu-item:nth-child(2) { animation-delay: 0.4s; }
+        .menu-item:nth-child(3) { animation-delay: 0.5s; }
+        .menu-item:nth-child(4) { animation-delay: 0.6s; }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #4da6ff;
+            color: white;
+            padding-left: 24px;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #4da6ff;
+            color: white;
+            font-weight: 600;
+        }
+
+        .menu-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out 0.7s both;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff9999;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.8s ease-out;
+            width: 100%;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .top-bar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 8px rgba(0, 51, 102, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9eef5;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            background: none;
+            border: none;
+            cursor: pointer;
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2.5px;
+            background: #003366;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translateY(10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translateY(-10px);
+        }
+
+        .top-bar h1 {
+            font-size: 24px;
+            color: #003366;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #003366;
+            font-weight: 600;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            color: #003366;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .content-header p {
+            color: #666d7d;
+            font-size: 15px;
+        }
+
+        .leaderboard-banner {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: rgba(15, 23, 42, 0.96);
+            color: #e0f2fe;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .leaderboard-banner.hidden {
+            display: none;
+        }
+
+        .leaderboard-banner .banner-inner {
+            position: relative;
+            width: min(1100px, 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 32px;
+            padding: 44px 44px 36px;
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+        }
+
+        .leaderboard-banner .banner-title {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            margin: 0 0 18px 0;
+            color: #f8fafc;
+        }
+
+        .leaderboard-banner .banner-text {
+            font-size: 20px;
+            line-height: 1.7;
+            color: #dbeafe;
+            margin-bottom: 0;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .leaderboard-table th {
+            color: #93c5fd;
+            font-size: 14px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .leaderboard-table td {
+            color: #e0f2fe;
+            font-size: 16px;
+        }
+
+        .profile-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
+            display: grid;
+            place-items: center;
+            color: #f8fafc;
+            font-weight: 700;
+            font-size: 16px;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .profile-subtitle {
+            font-size: 13px;
+            color: rgba(226, 242, 254, 0.85);
+        }
+
+        .leaderboard-table tr:nth-child(odd) {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .leaderboard-table tr:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .banner-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            color: #f8fafc;
+            font-size: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        
+        .banner-close-btn:hover {
+            background: rgba(255, 255, 255, 0.28);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-banner {
+                padding: 20px;
+            }
+
+            .leaderboard-banner .banner-inner {
+                padding: 28px 24px 24px;
+            }
+
+            .leaderboard-banner .banner-title {
+                font-size: 28px;
+            }
+
+            .leaderboard-banner .banner-text {
+                font-size: 16px;
+            }
+
+            .banner-close-btn {
+                width: 48px;
+                height: 48px;
+                font-size: 28px;
+                top: 16px;
+                right: 16px;
+            }
+        }
+
+        .banner-close-btn {
+            align-self: flex-end;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #f8fafc;
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .banner-close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-banner {
+                padding: 24px 20px;
+            }
+
+            .leaderboard-banner .banner-title {
+                font-size: 20px;
+            }
+
+            .leaderboard-banner .banner-text {
+                font-size: 16px;
+            }
+        }
+
+        .banner-close-btn {
+            background: transparent;
+            border: none;
+            color: #0c4a6e;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-title {
+            font-size: 20px;
+            color: #003366;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-text {
+            color: #666d7d;
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .add-item-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+            display: inline-block;
+        }
+
+        .add-item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.35);
+        }
+
+        /* Card View Items */
+        .item-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 51, 102, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #e9eef5;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 51, 102, 0.15);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #0066ff;
+            overflow: hidden;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-content {
+            padding: 20px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #003366;
+            margin-bottom: 8px;
+        }
+
+        .item-description {
+            color: #666d7d;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .read-note {
+            color: #0f4d92;
+            font-size: 13px;
+            background: #eef6ff;
+            border: 1px solid #dceafe;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .admin-tools {
+            margin-bottom: 24px;
+        }
+
+        .admin-card {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #d8e6ff;
+            background: #f4f8ff;
+            margin-bottom: 16px;
+        }
+
+        .admin-card h3 {
+            margin: 0 0 14px 0;
+            font-size: 18px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .admin-grid input,
+        .admin-grid textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #bfd6ff;
+            font-family: inherit;
+        }
+
+        .admin-grid textarea {
+            resize: vertical;
+            min-height: 90px;
+            grid-column: 1 / -1;
+        }
+
+        .admin-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .admin-btn,
+        .danger-btn,
+        .secondary-btn,
+        .copy-btn,
+        .remove-item-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+        }
+
+        .secondary-btn {
+            background: #eaf2ff;
+            color: #003366;
+            border: 1px solid #c8dcff;
+        }
+
+        .danger-btn,
+        .remove-item-btn {
+            background: #ffe8ee;
+            color: #9b153f;
+            border: 1px solid #ffc7d5;
+        }
+
+        .copy-btn {
+            background: #eef6ff;
+            color: #0b4a8d;
+            border: 1px solid #d0e4ff;
+        }
+
+        .prompt-preview {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #d4e6ff;
+            background: #ffffff;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .item-meta {
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .handout-btn,
+        .quiz-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .handout-btn {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+        }
+
+        .handout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.35);
+        }
+
+        .quiz-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+        }
+
+        .quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.35);
+        }
+
+        .leaderboard-wrapper {
+            overflow-x: auto;
+            margin-top: 18px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 100%;
+            font-size: 14px;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e9eef5;
+        }
+
+        .leaderboard-table th {
+            background: #f5f7fa;
+            color: #003366;
+            font-weight: 700;
+        }
+
+        .leaderboard-table tr:hover td {
+            background: #eef6ff;
+        }
+
+        .leaderboard-table td:last-child {
+            text-align: right;
+        }
+
+        /* PDF Viewer Modal */
+        .pdf-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .pdf-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pdf-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            height: 90%;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .pdf-modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9eef5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #003366 0%, #0052cc 100%);
+            color: white;
+        }
+
+        .pdf-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .pdf-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .pdf-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .pdf-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .pdf-sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9eef5;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .pdf-sidebar h3 {
+            margin: 0 0 16px 0;
+            color: #003366;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .pdf-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .pdf-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e9eef5;
+        }
+
+        .pdf-item:hover {
+            background: #0066ff;
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .pdf-item.active {
+            background: #0066ff;
+            color: white;
+            border-color: #0066ff;
+        }
+
+        .pdf-viewer {
+            flex: 1;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .pdf-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .pdf-placeholder {
+            text-align: center;
+            color: #666d7d;
+            font-size: 18px;
+        }
+
+        .pdf-placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .read-note {
+            color: #0f4d92;
+            font-size: 13px;
+            background: #eef6ff;
+            border: 1px solid #dceafe;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 16px 0;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .handout-btn,
+        .quiz-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .handout-btn {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+        }
+
+        .handout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.35);
+        }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+        }
+
+        .quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.35);
+        }
+
+        .content::-webkit-scrollbar-thumb:hover {
+            background: #0052cc;
+        }
+
+        .sidebar-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            aside {
+                width: 260px;
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 0;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+            }
+
+            aside.drawer-open {
+                transform: translateX(0);
+            }
+
+            .drawer-overlay {
+                display: block;
+            }
+
+            .drawer-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            body {
+                flex-direction: column;
+            }
+
+            main {
+                flex: 1;
+                width: 100%;
+            }
+
+            .top-bar h1 {
+                font-size: 18px;
+            }
+
+            .top-bar {
+                padding: 16px 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .items-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="ui-theme.css">
+</head>
+<body class="game-theme">
+    <!-- Drawer Overlay -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- Sidebar Drawer -->
+    <aside id="drawer">
+        <div class="sidebar-header">
+            <img src="logo.png" alt="Reviewise">
+            <h2>Reviewise</h2>
+        </div>
+        
+        <nav class="sidebar-menu" id="sidebarMenu">
+            <a href="#" class="menu-item active" data-section="dashboard">
+                <span class="menu-icon">📊</span>
+                Dashboard
+            </a>
+            <a href="#" class="menu-item" data-section="leaderboard">
+                <span class="menu-icon">🏆</span>
+                Leaderboard
+            </a>
+            <a href="#" class="menu-item" data-section="feedback">
+                <span class="menu-icon">💬</span>
+                Feedback
+            </a>
+            <a href="#" class="menu-item" data-section="review">
+                <span class="menu-icon">⭐</span>
+                Review
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+        <div class="top-bar">
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>Dashboard</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-name" id="userName">User</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="content-header">
+                <h2 id="dashboardHeading">Dashboard</h2>
+                <p id="dashboardSubheading">Browse available review handouts and launch your quiz.</p>
+            </div>
+
+            <div class="leaderboard-banner" id="leaderboardBanner">
+                <div class="banner-inner">
+                    <button class="banner-close-btn" id="leaderboardBannerClose" aria-label="Close leaderboard banner">&times;</button>
+                    <h2 class="banner-title">Current Leaderboard</h2>
+                    <p class="banner-text" id="leaderboardBannerText">Loading top players...</p>
+                </div>
+            </div>
+
+            <div class="admin-tools" id="adminTools" style="display: none;">
+                <div class="admin-card">
+                    <h3>Admin Controls</h3>
+                    <div class="admin-actions">
+                        <button class="danger-btn" onclick="resetLeaderboard()">Reset Leaderboard</button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h3>AI Quiz Generator Setup</h3>
+                    <form id="aiSettingsForm">
+                        <div class="admin-grid">
+                            <input type="password" id="aiApiKey" placeholder="API Key (required for automatic generation)" required>
+                            <input type="text" id="aiModel" placeholder="Model (example: gpt-4o-mini)" value="gpt-4o-mini" required>
+                            <input type="text" id="aiEndpoint" placeholder="API Endpoint" value="https://api.openai.com/v1/chat/completions" required>
+                        </div>
+                        <div class="admin-actions">
+                            <button class="admin-btn" type="submit">Save AI Settings</button>
+                            <button class="secondary-btn" type="button" onclick="clearAISettings()">Clear AI Settings</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="admin-card">
+                    <h3>Add Dashboard Item</h3>
+                    <form id="adminAddItemForm">
+                        <div class="admin-grid">
+                            <input type="text" id="itemTitle" placeholder="Item title" required>
+                            <input type="text" id="itemDescription" placeholder="Item description" required>
+                            <input type="text" id="itemImageUrl" placeholder="Image URL (optional)">
+                            <input type="file" id="itemHandoutFiles" accept="application/pdf" multiple required>
+                        </div>
+                        <div class="prompt-preview" id="promptPreview">Fixed prompt preview will appear here after entering item details.</div>
+                        <div class="admin-actions">
+                            <button class="admin-btn" type="submit">Add Item</button>
+                            <button class="secondary-btn" type="button" onclick="copyPromptPreview()">Copy Prompt</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="items-container" id="dashboardSection">
+            </div>
+            <div class="items-container" id="leaderboardSection" style="display: none;">
+                <div class="item-card leaderboard-card">
+                    <div class="item-content">
+                        <div class="item-title">Leaderboard</div>
+                        <div class="item-description">Top players ranked by total quiz points.</div>
+                        <div class="leaderboard-wrapper">
+                            <table class="leaderboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Player</th>
+                                        <th>Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <tr>
+                                        <td colspan="3">Loading leaderboard...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PDF Viewer Modal -->
+    <div class="pdf-modal" id="pdfModal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h2 class="pdf-modal-title" id="pdfModalTitle">Handout Files</h2>
+                <button class="pdf-close-btn" onclick="closePDFModal()">&times;</button>
+            </div>
+            <div class="pdf-content">
+                <div class="pdf-sidebar">
+                    <h3>Available PDFs</h3>
+                    <ul class="pdf-list" id="pdfList">
+                        <!-- PDFs will be loaded here -->
+                    </ul>
+                </div>
+                <div class="pdf-viewer">
+                    <div class="pdf-placeholder" id="pdfPlaceholder">
+                        <div class="pdf-placeholder-icon">📄</div>
+                        <div>Select a PDF file to view</div>
+                    </div>
+                    <iframe class="pdf-iframe" id="pdfViewer" style="display: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.js"></script>
+    <script>
+        const DASHBOARD_ITEMS_KEY = 'dashboardItems';
+        const AI_SETTINGS_KEY = 'reviewiseAISettings';
+        const ACTIVE_QUIZ_ITEM_KEY = 'activeQuizItemId';
+        const HANDOUT_READ_PREFIX = 'handoutsRead:';
+        const FIXED_PROMPT_TEMPLATE = [
+            'You are a quiz generator for Reviewise.',
+            'Create a multiple-choice quiz based ONLY on the uploaded handout.',
+            'Requirements:',
+            '1) Generate 30 questions.',
+            '2) 4 options each question, one correct answer only.',
+            '3) Include a short explanation for each correct answer.',
+            '4) Difficulty mix: 40% easy, 40% medium, 20% hard.',
+            '5) Output as JSON array: [{"question":"","options":["","","",""],"answerIndex":0,"explanation":""}]',
+            '6) Do not include any content not present in the handout.'
+        ].join('\n');
+
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.min.js';
+        }
+
+        const DEFAULT_ITEMS = [
+            {
+                id: 'sts-sda-default',
+                title: 'STS Prefi',
+                description: 'Science, Technology, and Society Prefinals',
+                imageSrc: 'haha.jpg',
+                imageEmoji: '😂',
+                handouts: [
+                    { name: 'STS - Science, Technology & Society', src: 'sts.pdf' },
+                    { name: 'SDA - Statistical Data Analysis', src: 'sda.pdf' }
+                ],
+                quizPrompt: ''
+            }
+        ];
+
+        const hamburger = document.getElementById('hamburger');
+        const drawer = document.getElementById('drawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const leaderboardSection = document.getElementById('leaderboardSection');
+        const adminTools = document.getElementById('adminTools');
+
+        let currentUserData = null;
+        let dashboardItems = [];
+
+        function toggleDrawer() {
+            hamburger.classList.toggle('active');
+            drawer.classList.toggle('drawer-open');
+            drawerOverlay.classList.toggle('active');
+        }
+
+        function closeDrawer() {
+            hamburger.classList.remove('active');
+            drawer.classList.remove('drawer-open');
+            drawerOverlay.classList.remove('active');
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function isAdmin() {
+            return !!(currentUserData && currentUserData.isAdmin);
+        }
+
+        function getDashboardItems() {
+            const raw = localStorage.getItem(DASHBOARD_ITEMS_KEY);
+            if (!raw) {
+                localStorage.setItem(DASHBOARD_ITEMS_KEY, JSON.stringify(DEFAULT_ITEMS));
+                return DEFAULT_ITEMS.slice();
+            }
+
+            try {
+                const parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed) || parsed.length === 0) {
+                    localStorage.setItem(DASHBOARD_ITEMS_KEY, JSON.stringify(DEFAULT_ITEMS));
+                    return DEFAULT_ITEMS.slice();
+                }
+                return parsed;
+            } catch (e) {
+                localStorage.setItem(DASHBOARD_ITEMS_KEY, JSON.stringify(DEFAULT_ITEMS));
+                return DEFAULT_ITEMS.slice();
+            }
+        }
+
+        function saveDashboardItems() {
+            localStorage.setItem(DASHBOARD_ITEMS_KEY, JSON.stringify(dashboardItems));
+        }
+
+        function getAISettings() {
+            const raw = localStorage.getItem(AI_SETTINGS_KEY);
+            if (!raw) {
+                return {
+                    apiKey: '',
+                    model: 'gpt-4o-mini',
+                    endpoint: 'https://api.openai.com/v1/chat/completions'
+                };
+            }
+
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                return {
+                    apiKey: '',
+                    model: 'gpt-4o-mini',
+                    endpoint: 'https://api.openai.com/v1/chat/completions'
+                };
+            }
+        }
+
+        function saveAISettings(settings) {
+            localStorage.setItem(AI_SETTINGS_KEY, JSON.stringify(settings));
+        }
+
+        function applyAISettingsToForm() {
+            const settings = getAISettings();
+            const apiKeyEl = document.getElementById('aiApiKey');
+            const modelEl = document.getElementById('aiModel');
+            const endpointEl = document.getElementById('aiEndpoint');
+            if (!apiKeyEl || !modelEl || !endpointEl) return;
+
+            apiKeyEl.value = settings.apiKey || '';
+            modelEl.value = settings.model || 'gpt-4o-mini';
+            endpointEl.value = settings.endpoint || 'https://api.openai.com/v1/chat/completions';
+        }
+
+        function clearAISettings() {
+            localStorage.removeItem(AI_SETTINGS_KEY);
+            applyAISettingsToForm();
+            alert('AI settings cleared.');
+        }
+
+        async function sourceToUint8Array(source) {
+            if (String(source).startsWith('data:')) {
+                const base64 = source.split(',')[1];
+                const raw = atob(base64);
+                const buffer = new Uint8Array(raw.length);
+                for (let i = 0; i < raw.length; i += 1) {
+                    buffer[i] = raw.charCodeAt(i);
+                }
+                return buffer;
+            }
+
+            const response = await fetch(source);
+            if (!response.ok) {
+                throw new Error(`Could not load PDF source: ${source}`);
+            }
+            const arr = await response.arrayBuffer();
+            return new Uint8Array(arr);
+        }
+
+        async function extractTextFromPdfDataUrl(dataUrl) {
+            if (!window.pdfjsLib) {
+                throw new Error('PDF text extraction library failed to load.');
+            }
+
+            const typedArray = await sourceToUint8Array(dataUrl);
+            const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+            const maxPages = Math.min(pdf.numPages, 15);
+            const pageTexts = [];
+
+            for (let pageNo = 1; pageNo <= maxPages; pageNo += 1) {
+                const page = await pdf.getPage(pageNo);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                pageTexts.push(pageText);
+            }
+
+            return pageTexts.join('\n').replace(/\s+/g, ' ').trim();
+        }
+
+        function parseQuizJsonFromResponse(content) {
+            const cleaned = String(content).trim();
+            const fenceMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+            const candidate = fenceMatch ? fenceMatch[1] : cleaned;
+            const jsonStart = candidate.indexOf('[');
+            const jsonEnd = candidate.lastIndexOf(']');
+            if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
+                throw new Error('AI response does not contain a JSON array.');
+            }
+
+            const parsed = JSON.parse(candidate.slice(jsonStart, jsonEnd + 1));
+            if (!Array.isArray(parsed) || parsed.length === 0) {
+                throw new Error('Generated quiz JSON is empty or invalid.');
+            }
+            return parsed;
+        }
+
+        async function generateQuizForItem(itemId) {
+            if (!isAdmin()) return;
+            const item = dashboardItems.find(entry => entry.id === itemId);
+            if (!item) return;
+            if (!Array.isArray(item.handouts) || item.handouts.length === 0) {
+                alert('No handouts attached to this item.');
+                return;
+            }
+
+            const settings = getAISettings();
+            if (!settings.apiKey || !settings.model || !settings.endpoint) {
+                alert('Please configure AI API settings first.');
+                return;
+            }
+
+            try {
+                const extracted = [];
+                for (const handout of item.handouts) {
+                    const text = await extractTextFromPdfDataUrl(handout.src);
+                    if (text) {
+                        extracted.push(`Handout: ${handout.name}\n${text.slice(0, 12000)}`);
+                    }
+                }
+
+                const handoutContext = extracted.join('\n\n').slice(0, 24000);
+                if (!handoutContext) {
+                    alert('Could not extract readable text from handout PDF(s).');
+                    return;
+                }
+
+                const messages = [
+                    {
+                        role: 'system',
+                        content: 'You generate high-quality multiple-choice quizzes and return valid JSON only.'
+                    },
+                    {
+                        role: 'user',
+                        content: `${item.quizPrompt || buildFixedPrompt(item.title, item.handouts.map(file => file.name))}\n\nUse this source text:\n${handoutContext}`
+                    }
+                ];
+
+                const response = await fetch(settings.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${settings.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        messages,
+                        temperature: 0.2
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`AI request failed: ${response.status} ${errorText}`);
+                }
+
+                const data = await response.json();
+                const content = data?.choices?.[0]?.message?.content;
+                if (!content) {
+                    throw new Error('AI response did not include message content.');
+                }
+
+                const quiz = parseQuizJsonFromResponse(content);
+                item.generatedQuiz = quiz;
+                item.generatedAt = new Date().toISOString();
+                saveDashboardItems();
+                renderDashboardItems();
+                alert(`Quiz generated successfully with ${quiz.length} questions.`);
+            } catch (error) {
+                console.error(error);
+                alert(`Automatic AI generation failed: ${error.message}`);
+            }
+        }
+
+        function downloadGeneratedQuiz(itemId) {
+            const item = dashboardItems.find(entry => entry.id === itemId);
+            if (!item || !Array.isArray(item.generatedQuiz) || item.generatedQuiz.length === 0) {
+                alert('No generated quiz found for this item yet.');
+                return;
+            }
+
+            const blob = new Blob([JSON.stringify(item.generatedQuiz, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${item.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_quiz.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function buildFixedPrompt(itemTitle, handoutNames) {
+            return [
+                FIXED_PROMPT_TEMPLATE,
+                '',
+                `Item title: ${itemTitle}`,
+                `Handouts: ${handoutNames.join(', ')}`,
+                '',
+                'Return only valid JSON.'
+            ].join('\n');
+        }
+
+        function updatePromptPreview() {
+            const titleInput = document.getElementById('itemTitle');
+            const filesInput = document.getElementById('itemHandoutFiles');
+            const preview = document.getElementById('promptPreview');
+            if (!titleInput || !filesInput || !preview) return;
+
+            const title = titleInput.value.trim() || 'Untitled Item';
+            const fileNames = Array.from(filesInput.files || []).map(file => file.name);
+            const names = fileNames.length > 0 ? fileNames : ['uploaded-handout.pdf'];
+            preview.textContent = buildFixedPrompt(title, names);
+        }
+
+        async function filesToDataUrls(files) {
+            const readers = Array.from(files).map(file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve({ name: file.name, src: reader.result });
+                reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+                reader.readAsDataURL(file);
+            }));
+            return Promise.all(readers);
+        }
+
+        function renderDashboardItems() {
+            if (!dashboardSection) return;
+
+            if (dashboardItems.length === 0) {
+                dashboardSection.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <div class="empty-state-title">No items yet</div>
+                        <div class="empty-state-text">${isAdmin() ? 'Add an item using Admin Tools above.' : 'Ask admin to add review items.'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            dashboardSection.innerHTML = dashboardItems.map(item => {
+                const handoutCount = Array.isArray(item.handouts) ? item.handouts.length : 0;
+                const imageBlock = item.imageSrc
+                    ? `<img src="${item.imageSrc}" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'; this.parentElement.innerHTML='${escapeHtml(item.imageEmoji || '📘')}';">`
+                    : escapeHtml(item.imageEmoji || '📘');
+
+                const adminButtons = isAdmin()
+                    ? `<button class="admin-btn" onclick="generateQuizForItem('${item.id}')">Generate AI Quiz</button><button class="secondary-btn" onclick="downloadGeneratedQuiz('${item.id}')">Download Quiz JSON</button><button class="copy-btn" onclick="copyPrompt('${item.id}')">Copy Prompt</button><button class="remove-item-btn" onclick="removeDashboardItem('${item.id}')">Remove Item</button>`
+                    : '';
+
+                const generatedMeta = item.generatedQuiz && Array.isArray(item.generatedQuiz)
+                    ? ` | Generated quiz: ${item.generatedQuiz.length} questions`
+                    : '';
+
+                return `
+                    <div class="item-card">
+                        <div class="item-image">${imageBlock}</div>
+                        <div class="item-content">
+                            <div class="item-title">${escapeHtml(item.title)}</div>
+                            <div class="item-description">${escapeHtml(item.description)}</div>
+                            <div class="read-note">Read the handouts first from the viewer, then start the practice quiz.</div>
+                            <div class="item-meta">Handouts: ${handoutCount}${generatedMeta}</div>
+                            <div class="card-actions">
+                                <button class="handout-btn" onclick="openHandouts('${item.id}')">Read Handouts</button>
+                                <button class="quiz-btn" onclick="startQuiz('${item.id}')">Start Practice Quiz</button>
+                                ${adminButtons}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkLogin() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            try {
+                currentUserData = JSON.parse(currentUser);
+                const userNameElement = document.getElementById('userName');
+                const userAvatarElement = document.getElementById('userAvatar');
+                const heading = document.getElementById('dashboardHeading');
+                const subheading = document.getElementById('dashboardSubheading');
+
+                userNameElement.textContent = currentUserData.username;
+                userAvatarElement.textContent = currentUserData.username.charAt(0).toUpperCase();
+
+                if (currentUserData.profilePic) {
+                    userAvatarElement.style.backgroundImage = `url('${currentUserData.profilePic}')`;
+                    userAvatarElement.style.backgroundSize = 'cover';
+                    userAvatarElement.style.backgroundPosition = 'center';
+                    userAvatarElement.textContent = '';
+                }
+
+                if (isAdmin()) {
+                    heading.textContent = 'Admin Dashboard';
+                    subheading.textContent = 'Manage handouts, prompts, leaderboard, and dashboard items.';
+                    adminTools.style.display = 'block';
+                } else {
+                    heading.textContent = 'Dashboard';
+                    subheading.textContent = 'Browse available review handouts and launch your quiz.';
+                    adminTools.style.display = 'none';
+                }
+
+                return true;
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+                alert('Session error. Please login again.');
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        function openHandouts(itemId) {
+            const item = dashboardItems.find(entry => entry.id === itemId);
+            if (!item || !Array.isArray(item.handouts) || item.handouts.length === 0) {
+                alert('No handouts found for this item.');
+                return;
+            }
+
+            const pdfModal = document.getElementById('pdfModal');
+            const pdfList = document.getElementById('pdfList');
+            const titleElement = document.getElementById('pdfModalTitle');
+            sessionStorage.setItem('handoutsRead', 'true');
+            sessionStorage.setItem(ACTIVE_QUIZ_ITEM_KEY, itemId);
+            sessionStorage.setItem(`${HANDOUT_READ_PREFIX}${itemId}`, 'true');
+
+            titleElement.textContent = `${item.title} Handouts`;
+            pdfList.innerHTML = '';
+
+            item.handouts.forEach(pdf => {
+                const li = document.createElement('li');
+                li.className = 'pdf-item';
+                li.textContent = pdf.name;
+                li.onclick = () => loadPDF(pdf.src, li);
+                pdfList.appendChild(li);
+            });
+
+            pdfModal.classList.add('active');
+        }
+
+        function loadPDF(pdfFile, element) {
+            const pdfViewer = document.getElementById('pdfViewer');
+            const pdfPlaceholder = document.getElementById('pdfPlaceholder');
+
+            document.querySelectorAll('.pdf-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            pdfViewer.src = pdfFile;
+            pdfViewer.style.display = 'block';
+            pdfPlaceholder.style.display = 'none';
+        }
+
+        function closePDFModal() {
+            const pdfModal = document.getElementById('pdfModal');
+            const pdfViewer = document.getElementById('pdfViewer');
+            const pdfPlaceholder = document.getElementById('pdfPlaceholder');
+
+            pdfModal.classList.remove('active');
+            pdfViewer.style.display = 'none';
+            pdfPlaceholder.style.display = 'flex';
+            pdfViewer.src = '';
+            document.querySelectorAll('.pdf-item').forEach(item => item.classList.remove('active'));
+        }
+
+        function startQuiz(itemId) {
+            const selectedItemId = itemId || sessionStorage.getItem(ACTIVE_QUIZ_ITEM_KEY);
+            if (!selectedItemId) {
+                alert('Please select a dashboard item first.');
+                return;
+            }
+
+            const handoutsRead = sessionStorage.getItem(`${HANDOUT_READ_PREFIX}${selectedItemId}`) === 'true'
+                || sessionStorage.getItem('handoutsRead') === 'true';
+            if (!handoutsRead) {
+                alert('Please read the selected handout first before starting the quiz.');
+                return;
+            }
+
+            sessionStorage.setItem(ACTIVE_QUIZ_ITEM_KEY, selectedItemId);
+            window.location.href = 'quiz.html';
+        }
+
+        function copyPrompt(itemId) {
+            const item = dashboardItems.find(entry => entry.id === itemId);
+            if (!item || !item.quizPrompt) {
+                alert('No prompt saved for this item yet.');
+                return;
+            }
+            navigator.clipboard.writeText(item.quizPrompt)
+                .then(() => alert('Prompt copied to clipboard.'))
+                .catch(() => alert('Could not copy prompt.'));
+        }
+
+        function copyPromptPreview() {
+            const preview = document.getElementById('promptPreview');
+            if (!preview || !preview.textContent.trim()) return;
+            navigator.clipboard.writeText(preview.textContent)
+                .then(() => alert('Prompt copied to clipboard.'))
+                .catch(() => alert('Could not copy prompt.'));
+        }
+
+        function removeDashboardItem(itemId) {
+            if (!isAdmin()) return;
+            if (!confirm('Remove this dashboard item?')) return;
+
+            dashboardItems = dashboardItems.filter(item => item.id !== itemId);
+            saveDashboardItems();
+            renderDashboardItems();
+        }
+
+        function resetLeaderboard() {
+            if (!isAdmin()) return;
+            if (!confirm('Reset all user leaderboard points to zero?')) return;
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const updatedUsers = users.map(user => {
+                if (user.isAdmin) return user;
+                return {
+                    ...user,
+                    quizPoints: 0,
+                    questionStats: {}
+                };
+            });
+            localStorage.setItem('users', JSON.stringify(updatedUsers));
+            renderLeaderboard();
+            updateLeaderboardBanner();
+            alert('Leaderboard has been reset.');
+        }
+
+        function renderLeaderboard() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            if (!leaderboardBody) return;
+
+            const sortedUsers = users
+                .filter(user => !user.isAdmin)
+                .sort((a, b) => (b.quizPoints || 0) - (a.quizPoints || 0) || a.username.localeCompare(b.username));
+
+            if (sortedUsers.length === 0) {
+                leaderboardBody.innerHTML = '<tr><td colspan="3">No players yet.</td></tr>';
+                return;
+            }
+
+            leaderboardBody.innerHTML = sortedUsers.map((user, index) => {
+                const safeName = escapeHtml(user.username);
+                const avatarContent = user.profilePic
+                    ? `<div class="profile-avatar"><img src="${user.profilePic}" alt="${safeName} profile"></div>`
+                    : `<div class="profile-avatar">${safeName.charAt(0).toUpperCase()}</div>`;
+
+                const topClass = index === 0 ? 'leaderboard-top-1' : index === 1 ? 'leaderboard-top-2' : index === 2 ? 'leaderboard-top-3' : '';
+                const rankBadge = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+
+                return `
+                    <tr class="${topClass}">
+                        <td class="rank-cell"><span class="rank-badge">${rankBadge}</span></td>
+                        <td>
+                            <div class="profile-cell">
+                                ${avatarContent}
+                                <div class="profile-details">
+                                    <span class="profile-name">${safeName}</span>
+                                    <span class="profile-subtitle">${user.quizPoints || 0} pts</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${user.quizPoints || 0}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateLeaderboardBanner() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const topPlayers = users
+                .filter(user => !user.isAdmin)
+                .sort((a, b) => (b.quizPoints || 0) - (a.quizPoints || 0) || a.username.localeCompare(b.username))
+                .slice(0, 3);
+
+            const bannerText = document.getElementById('leaderboardBannerText');
+            const banner = document.getElementById('leaderboardBanner');
+            if (!bannerText || !banner) return;
+
+            if (topPlayers.length === 0) {
+                bannerText.textContent = 'Leaderboard is empty right now. Play a quiz to appear on the board!';
+            } else {
+                const podium = topPlayers.map((user, index) => {
+                    const safeName = escapeHtml(user.username);
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
+                    const points = user.quizPoints || 0;
+                    const avatar = user.profilePic
+                        ? `<img class="banner-avatar-img" src="${user.profilePic}" alt="${safeName} profile">`
+                        : `<span class="banner-avatar-fallback">${safeName.charAt(0).toUpperCase()}</span>`;
+
+                    return `<div class="banner-podium-item place-${index + 1}"><span class="banner-medal">${medal}</span><div class="banner-avatar">${avatar}</div><span class="banner-player">${safeName}</span><span class="banner-points">${points} pts</span></div>`;
+                }).join('');
+                bannerText.innerHTML = `<div class="banner-podium">${podium}</div>`;
+            }
+
+            banner.classList.remove('hidden');
+        }
+
+        function initLeaderboardBanner() {
+            const closeBtn = document.getElementById('leaderboardBannerClose');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    const banner = document.getElementById('leaderboardBanner');
+                    if (banner) banner.classList.add('hidden');
+                });
+            }
+        }
+
+        function switchSection(section) {
+            if (section === 'leaderboard') {
+                dashboardSection.style.display = 'none';
+                if (adminTools) adminTools.style.display = 'none';
+                leaderboardSection.style.display = 'grid';
+                renderLeaderboard();
+                return;
+            }
+
+            leaderboardSection.style.display = 'none';
+            dashboardSection.style.display = 'grid';
+            if (adminTools) {
+                adminTools.style.display = isAdmin() ? 'block' : 'none';
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                sessionStorage.removeItem('isAdmin');
+                window.location.href = 'start.html';
+            }
+        }
+
+        if (hamburger) {
+            hamburger.addEventListener('click', toggleDrawer);
+        }
+
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeDrawer();
+                menuItems.forEach(m => m.classList.remove('active'));
+                item.classList.add('active');
+                const section = item.dataset.section || 'dashboard';
+                switchSection(section);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkLogin()) return;
+
+            dashboardItems = getDashboardItems();
+            renderDashboardItems();
+            renderLeaderboard();
+            updateLeaderboardBanner();
+            initLeaderboardBanner();
+
+            const addItemForm = document.getElementById('adminAddItemForm');
+            const aiSettingsForm = document.getElementById('aiSettingsForm');
+            const handoutInput = document.getElementById('itemHandoutFiles');
+            const titleInput = document.getElementById('itemTitle');
+
+            applyAISettingsToForm();
+
+            if (aiSettingsForm) {
+                aiSettingsForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    if (!isAdmin()) return;
+
+                    const apiKey = document.getElementById('aiApiKey').value.trim();
+                    const model = document.getElementById('aiModel').value.trim();
+                    const endpoint = document.getElementById('aiEndpoint').value.trim();
+
+                    if (!apiKey || !model || !endpoint) {
+                        alert('Please fill API key, model, and endpoint.');
+                        return;
+                    }
+
+                    saveAISettings({ apiKey, model, endpoint });
+                    alert('AI settings saved. Automatic generation is ready.');
+                });
+            }
+
+            if (titleInput) {
+                titleInput.addEventListener('input', updatePromptPreview);
+            }
+
+            if (handoutInput) {
+                handoutInput.addEventListener('change', updatePromptPreview);
+            }
+
+            if (addItemForm) {
+                addItemForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    if (!isAdmin()) return;
+
+                    const title = document.getElementById('itemTitle').value.trim();
+                    const description = document.getElementById('itemDescription').value.trim();
+                    const imageUrl = document.getElementById('itemImageUrl').value.trim();
+                    const files = document.getElementById('itemHandoutFiles').files;
+
+                    if (!title || !description || !files || files.length === 0) {
+                        alert('Please complete title, description, and upload at least one handout PDF.');
+                        return;
+                    }
+
+                    try {
+                        const handouts = await filesToDataUrls(files);
+                        const prompt = buildFixedPrompt(title, handouts.map(file => file.name));
+
+                        const newItem = {
+                            id: `item-${Date.now()}`,
+                            title,
+                            description,
+                            imageSrc: imageUrl || '',
+                            imageEmoji: '📘',
+                            handouts,
+                            quizPrompt: prompt,
+                            generatedQuiz: [],
+                            generatedAt: null
+                        };
+
+                        dashboardItems.unshift(newItem);
+                        saveDashboardItems();
+                        renderDashboardItems();
+                        addItemForm.reset();
+                        updatePromptPreview();
+                        alert('Dashboard item added successfully.');
+                    } catch (error) {
+                        console.error(error);
+                        alert('Failed to add item. Please try again with valid PDF file(s).');
+                    }
+                });
+            }
+
+            updatePromptPreview();
+
+            document.getElementById('pdfModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePDFModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('pdfModal').classList.contains('active')) {
+                    closePDFModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

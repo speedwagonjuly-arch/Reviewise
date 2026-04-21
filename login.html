@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Reviewise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --page-bg: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+            --surface: white;
+            --text: #1f2a44;
+            --muted: #666d7d;
+            --accent: #0066ff;
+            --accent-soft: rgba(0, 102, 255, 0.12);
+            --card-shadow: 0 20px 60px rgba(0, 51, 102, 0.12);
+            --btn-bg: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            --btn-text: white;
+            --btn-secondary-bg: linear-gradient(135deg, #0080ff 0%, #0066cc 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--page-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(30px); }
+        }
+
+        .container {
+            background: var(--surface);
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            margin-bottom: 16px;
+            animation: scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        .logo img {
+            max-width: 60px;
+            height: auto;
+            filter: drop-shadow(0 4px 12px rgba(0, 102, 255, 0.2));
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .header h1 {
+            color: #003366;
+            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #003366 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666d7d;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .form-group:nth-of-type(1) { animation-delay: 0.3s; }
+        .form-group:nth-of-type(2) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            display: block;
+            color: #003366;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e0e5eb;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0066ff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+            background: #fafbfc;
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(0, 102, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 102, 255, 0.45);
+        }
+
+        .btn-login:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login > span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+        }
+
+        .back-link a {
+            color: #0066ff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: #0052cc;
+            text-decoration: underline;
+        }
+
+
+        .signup-link {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #666d7d;
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+        }
+
+        .signup-link a {
+            color: #0066ff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+            color: #0052cc;
+        }
+    </style>
+    <link rel="stylesheet" href="ui-theme.css">
+</head>
+<body class="game-theme">
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="logo.png" alt="Reviewise Logo">
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Login to your account</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Enter your username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <div id="errorMsg" style="color: #ff6b6b; text-align: center; margin-top: 12px; font-size: 13px; display: none;"></div>
+
+            <button type="submit" class="btn-login"><span>Login</span></button>
+
+            <div class="signup-link">
+                Don't have an account? <a href="register.html">Sign up here</a>
+            </div>
+
+            <div class="back-link">
+                <a href="start.html">← Back to Home</a>
+            </div>
+        </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const loginForm = document.getElementById('loginForm');
+                const usernameInput = document.getElementById('username');
+                const passwordInput = document.getElementById('password');
+                const errorMsg = document.getElementById('errorMsg');
+
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const username = usernameInput.value.trim();
+                    const password = passwordInput.value.trim();
+
+                    // Get users from localStorage
+                    const users = JSON.parse(localStorage.getItem('users')) || [];
+
+                    // Find user
+                    const user = users.find(u => u.username === username && u.password === password);
+
+                    if (user) {
+                        errorMsg.style.display = 'none';
+                        // Ensure user has quiz tracking fields
+                        user.quizPoints = user.quizPoints || 0;
+                        user.questionStats = user.questionStats || {};
+                        // Store current user in localStorage
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        alert('Login successful!');
+                        // Redirect to dashboard
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 100);
+                    } else {
+                        errorMsg.textContent = 'Invalid username or password';
+                        errorMsg.style.display = 'block';
+                        passwordInput.value = '';
+                    }
+                });
+
+            });
+        </script>
+    </div>
+</body>
+</html>
